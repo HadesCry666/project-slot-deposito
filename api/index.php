@@ -38,6 +38,13 @@ $_ENV['SESSION_DRIVER'] = 'file';
 putenv('CACHE_STORE=file');
 $_ENV['CACHE_STORE'] = 'file';
 
+// HTTPS and Proxy headers for Vercel
+putenv('HTTPS=on');
+$_ENV['HTTPS'] = 'on';
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
+$_SERVER['VERCEL'] = '1';
+
 $dbPath = '/tmp/database.sqlite';
 putenv('DB_CONNECTION=sqlite');
 $_ENV['DB_CONNECTION'] = 'sqlite';
