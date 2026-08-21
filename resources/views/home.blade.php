@@ -7,8 +7,8 @@
   <header class="w-full bg-white/85 border-b border-slate-200/90 sticky top-0 z-40 backdrop-blur-md">
    <nav aria-label="Navigasi utama" class="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between gap-4">
     <a href="#beranda" class="flex items-center gap-3 group no-underline">
-     <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white grid place-items-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7 12 2"/></svg>
+     <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-emerald-500 text-white grid place-items-center shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
      </span>
      <span>
       <span class="block font-bold leading-none text-slate-900 text-base">Slot atau Deposito?</span>

@@ -268,10 +268,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const rateInput = document.getElementById('rate-input');
   const rateValue = document.getElementById('rate-value');
-  if (rateInput && rateValue) {
+  if (rateInput) {
+    const updateSliderTrack = () => {
+      const min = Number(rateInput.min) || 1;
+      const max = Number(rateInput.max) || 10;
+      const val = Number(rateInput.value);
+      const percentage = ((val - min) / (max - min)) * 100;
+      rateInput.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${percentage}%, #334155 ${percentage}%, #334155 100%)`;
+      if (rateValue) {
+        rateValue.textContent = `${val.toFixed(1).replace('.', ',')}% / tahun`;
+      }
+    };
     rateInput.addEventListener('input', () => {
-      rateValue.textContent = `${Number(rateInput.value).toFixed(1).replace('.', ',')}% / tahun`;
+      updateSliderTrack();
+      simulate();
     });
+    updateSliderTrack();
   }
 
   document.querySelectorAll('a[href="#simulator"]').forEach(link => {
