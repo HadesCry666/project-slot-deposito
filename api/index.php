@@ -5,8 +5,8 @@
 putenv('APP_ENV=production');
 $_ENV['APP_ENV'] = 'production';
 
-putenv('APP_DEBUG=false');
-$_ENV['APP_DEBUG'] = 'false';
+putenv('APP_DEBUG=true');
+$_ENV['APP_DEBUG'] = 'true';
 
 putenv('APP_STORAGE=/tmp');
 $_ENV['APP_STORAGE'] = '/tmp';
