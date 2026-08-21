@@ -68,6 +68,7 @@ if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
 try {
     $pdo = new PDO("sqlite:{$dbPath}");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->exec("PRAGMA busy_timeout = 5000;");
 
     // Create tables if not exist
     $pdo->exec("
@@ -149,6 +150,12 @@ try {
             $insertContent->execute([$item[0], $item[1], $item[2], $item[3], $item[4], $now, $now]);
         }
     }
+
+    // Unset all PDO handles to release SQLite database file lock before Laravel boots
+    $stmt = null;
+    $insertUser = null;
+    $insertContent = null;
+    $pdo = null;
 } catch (\Throwable $e) {
     // Fail-safe PDO initialization
 }
