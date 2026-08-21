@@ -1,0 +1,267 @@
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --blue: #2563eb;
+  --blue-soft: #eff6ff;
+  --green: #10b981;
+  --green-soft: #ecfdf5;
+  --orange: #f59e0b;
+  --orange-soft: #fffbeb;
+  --red: #ef4444;
+  --red-soft: #fef2f2;
+  --line: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  background-color: #f8fafc;
+}
+
+.display-font {
+  font-family: "Fraunces", serif;
+}
+
+.app-shell {
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.dot-grid {
+  background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+.hero-orb {
+  filter: blur(40px);
+}
+
+.premium-shadow {
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.75);
+}
+
+.glow-box-blue {
+  box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.18);
+}
+
+.glow-box-green {
+  box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.18);
+}
+
+.glow-box-red {
+  box-shadow: 0 10px 30px -5px rgba(239, 68, 68, 0.18);
+}
+
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
+}
+
+.soft-card {
+  border: 1px solid var(--line);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.soft-card:hover {
+  border-color: #cbd5e1;
+}
+
+.reveal {
+  animation: rise 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.delay-1 {
+  animation-delay: 0.12s;
+}
+
+.delay-2 {
+  animation-delay: 0.24s;
+}
+
+.delay-3 {
+  animation-delay: 0.36s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modern Chart SVG Styles */
+.chart-line {
+  transition: d 0.6s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+}
+
+.chart-area {
+  transition: d 0.6s cubic-bezier(0.16, 1, 0.3, 1), fill 0.3s ease;
+}
+
+.chart-point {
+  transition: cx 0.6s cubic-bezier(0.16, 1, 0.3, 1), cy 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.progress-fill {
+  transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animated Card Spin Reveal */
+@keyframes spinReveal {
+  0% { opacity: 0; transform: scale(0.85) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.spin-card-anim {
+  animation: spinReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.result-pulse {
+  animation: resultPulse 0.55s ease;
+}
+
+@keyframes resultPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s infinite ease-in-out;
+}
+
+/* Number counter highlight animation */
+@keyframes numberPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); color: #10b981; }
+  100% { transform: scale(1); }
+}
+
+.number-pop {
+  animation: numberPop 0.4s ease-out;
+}
+
+/* Modern Custom Range Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1e293b;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid #0f172a;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  background: #34d399;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid #0f172a;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input:focus, select:focus, button:focus, a:focus {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+.stat-number {
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-link {
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--blue);
+}
+
+.hero-fallback {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #047857 100%);
+  position: relative;
+}
+
+.hero-fallback::after {
+  content: 'SLOT VS DEPOSITO';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+@media (max-width: 640px) {
+  .hero-visual {
+    min-height: 280px;
+  }
+}
