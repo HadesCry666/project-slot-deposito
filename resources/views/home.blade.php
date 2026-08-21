@@ -126,7 +126,7 @@
         <label class="block text-xs font-bold mb-2.5 text-slate-300 uppercase tracking-wider" for="money-input">Nominal Modal (Rp)</label>
         <div class="relative">
          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-bold text-base">Rp</span>
-         <input id="money-input" aria-describedby="input-feedback" type="text" inputmode="numeric" value="1.000.000" class="w-full rounded-xl border border-slate-700 bg-slate-900/90 text-white pl-12 pr-4 py-3.5 font-bold text-base placeholder:text-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+         <input id="money-input" aria-describedby="input-feedback" type="text" inputmode="numeric" value="1000000" class="w-full rounded-xl border border-slate-700 bg-slate-900/90 text-white pl-12 pr-4 py-3.5 font-bold text-base placeholder:text-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
         </div>
        </div>
 
@@ -222,7 +222,7 @@
           <span class="text-[11px] font-bold text-rose-400 bg-rose-950/80 border border-rose-800/60 px-2.5 py-0.5 rounded-full">Proyeksi Rungkat</span>
          </div>
          <div class="relative w-full h-52 sm:h-60">
-          <canvas id="slotChart"></canvas>
+          <canvas id="slotChart" style="width:100%;height:100%;display:block;"></canvas>
          </div>
         </div>
 
@@ -334,7 +334,7 @@
           <span class="text-[11px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">Bunga Berbunga</span>
          </div>
          <div class="relative w-full h-52 sm:h-60">
-          <canvas id="depositoChart"></canvas>
+          <canvas id="depositoChart" style="width:100%;height:100%;display:block;"></canvas>
          </div>
         </div>
 
