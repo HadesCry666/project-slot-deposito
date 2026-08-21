@@ -45,24 +45,29 @@ function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaG
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  const rect = canvas.parentElement.getBoundingClientRect();
+  const parent = canvas.parentElement;
+  if (!parent) return;
+
+  const rect = parent.getBoundingClientRect();
+  const w = rect.width > 0 ? rect.width : (parent.clientWidth || 380);
+  const h = rect.height > 0 ? rect.height : (parent.clientHeight || 220);
+
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+
   ctx.scale(dpr, dpr);
-
-  const w = rect.width;
-  const h = rect.height;
-
   ctx.clearRect(0, 0, w, h);
 
-  const padLeft = 55;
-  const padRight = 20;
-  const padTop = 25;
-  const padBottom = 30;
+  const padLeft = 50;
+  const padRight = 15;
+  const padTop = 20;
+  const padBottom = 25;
 
-  const graphW = w - padLeft - padRight;
-  const graphH = h - padTop - padBottom;
+  const graphW = Math.max(100, w - padLeft - padRight);
+  const graphH = Math.max(80, h - padTop - padBottom);
 
   const maxVal = Math.max(...dataValues, 1000);
   const minVal = 0;
@@ -88,7 +93,7 @@ function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaG
     ctx.stroke();
 
     const formattedLabel = 'Rp' + (yVal >= 1000000 ? (yVal / 1000000).toFixed(1) + 'M' : (yVal / 1000).toFixed(0) + 'k');
-    ctx.fillText(formattedLabel, padLeft - 8, yPos);
+    ctx.fillText(formattedLabel, padLeft - 6, yPos);
   }
   ctx.setLineDash([]);
 
@@ -104,7 +109,7 @@ function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaG
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   points.forEach(pt => {
-    ctx.fillText(pt.label, pt.x, h - padBottom + 8);
+    ctx.fillText(pt.label, pt.x, h - padBottom + 6);
   });
 
   // Draw Smooth Gradient Area Under Curve
@@ -145,7 +150,7 @@ function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaG
     ctx.strokeStyle = primaryColor;
     ctx.lineWidth = 3.5;
     ctx.shadowColor = primaryColor;
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 10;
     ctx.stroke();
     ctx.shadowBlur = 0;
   }
@@ -153,7 +158,7 @@ function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaG
   // Draw Glowing Data Dots
   points.forEach((pt, i) => {
     ctx.beginPath();
-    ctx.arc(pt.x, pt.y, i === points.length - 1 ? 6 : 4, 0, Math.PI * 2);
+    ctx.arc(pt.x, pt.y, i === points.length - 1 ? 5.5 : 3.5, 0, Math.PI * 2);
     ctx.fillStyle = primaryColor;
     ctx.fill();
     ctx.lineWidth = 2;
@@ -321,6 +326,14 @@ function simulate() {
   });
 }
 
+function initApp() {
+  formatInput();
+  simulate();
+
+  setTimeout(() => simulate(), 150);
+  setTimeout(() => simulate(), 400);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined' && lucide.createIcons) {
     lucide.createIcons();
@@ -373,6 +386,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  formatInput();
-  simulate();
+  initApp();
+});
+
+window.addEventListener('load', () => {
+  initApp();
 });
