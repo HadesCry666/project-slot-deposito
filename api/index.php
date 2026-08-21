@@ -1,9 +1,6 @@
 <?php
 
 // Forward Vercel requests to Laravel public/index.php
-define('LARAVEL_START', microtime(true));
-
-// Set writable directories in Vercel serverless environment
 $_ENV['APP_STORAGE'] = '/tmp';
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/laravel/views';
 
