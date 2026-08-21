@@ -18,5 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+    })
     ->create()
     ->useStoragePath(is_dir('/tmp') && (!file_exists(dirname(__DIR__).'/storage') || !is_writable(dirname(__DIR__).'/storage')) ? '/tmp' : dirname(__DIR__).'/storage');
