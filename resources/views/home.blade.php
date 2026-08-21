@@ -184,17 +184,17 @@
         </p>
 
         <div class="mt-6 grid grid-cols-3 gap-3">
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Modal Awal</p>
-          <p id="slot-initial" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-slate-900"></p>
+         <div class="bg-slate-900/90 border border-slate-700/70 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Modal Awal</p>
+          <p id="slot-initial" class="stat-number text-xs sm:text-sm font-bold mt-1 text-white"></p>
          </div>
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Sisa Saldo</p>
-          <p id="slot-balance" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-rose-600"></p>
+         <div class="bg-rose-950/90 border border-rose-800/80 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-rose-300 uppercase tracking-wider">Sisa Saldo</p>
+          <p id="slot-balance" class="stat-number text-xs sm:text-sm font-bold mt-1 text-rose-400"></p>
          </div>
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Kerugian</p>
-          <p id="slot-change" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-rose-600"></p>
+         <div class="bg-rose-950/90 border border-rose-800/80 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-rose-300 uppercase tracking-wider">Kerugian</p>
+          <p id="slot-change" class="stat-number text-xs sm:text-sm font-bold mt-1 text-rose-400"></p>
          </div>
         </div>
 
@@ -212,36 +212,17 @@
          </div>
         </div>
 
-        <!-- SVG Chart Container Slot -->
-        <div class="mt-6 bg-slate-950 rounded-2xl p-4 border border-slate-800 shadow-inner">
-         <div class="flex justify-between items-center mb-2 px-1">
+        <!-- Chart.js Container Slot -->
+        <div class="mt-6 bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-2xl relative">
+         <div class="flex justify-between items-center mb-3 px-1">
           <div class="flex items-center gap-2">
-           <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+           <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Grafik Tren Uang Slot</h4>
           </div>
-          <span class="text-[11px] font-semibold text-rose-400">Kecenderungan Rungkat</span>
+          <span class="text-[11px] font-bold text-rose-400 bg-rose-950/80 border border-rose-800/60 px-2.5 py-0.5 rounded-full">Proyeksi Rungkat</span>
          </div>
-         <div class="relative w-full h-40">
-          <svg viewbox="0 0 440 150" class="w-full h-full" role="img" aria-label="Grafik tren uang simulasi slot">
-           <defs>
-            <linearGradient id="slotArea" x1="0" y1="0" x2="0" y2="1">
-             <stop offset="0%" stop-color="#ef4444" stop-opacity="0.4" />
-             <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
-            </linearGradient>
-            <filter id="glowRed" x="-20%" y="-20%" width="140%" height="140%">
-             <feGaussianBlur stdDeviation="3" result="blur" />
-             <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-           </defs>
-           <line x1="10" y1="31" x2="430" y2="31" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-           <line x1="10" y1="78" x2="430" y2="78" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-           <line x1="10" y1="125" x2="430" y2="125" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-
-           <path id="slot-area" class="chart-area" d="M 10 30 L 430 118 L 430 140 L 10 140 Z" fill="url(#slotArea)" />
-           <path id="slot-line" class="chart-line" d="M 10 30 L 430 118" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowRed)" />
-           
-           <circle id="slot-point-end" cx="430" cy="118" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2" filter="url(#glowRed)" />
-          </svg>
+         <div class="relative w-full h-52 sm:h-60">
+          <canvas id="slotChart"></canvas>
          </div>
         </div>
 
@@ -318,17 +299,17 @@
         </p>
 
         <div class="mt-6 grid grid-cols-3 gap-3">
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Modal Awal</p>
-          <p id="dep-initial" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-slate-900"></p>
+         <div class="bg-slate-900/90 border border-slate-700/70 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Modal Awal</p>
+          <p id="dep-initial" class="stat-number text-xs sm:text-sm font-bold mt-1 text-white"></p>
          </div>
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Total Bunga</p>
-          <p id="dep-interest" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-emerald-600"></p>
+         <div class="bg-emerald-950/90 border border-emerald-800/80 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Total Bunga</p>
+          <p id="dep-interest" class="stat-number text-xs sm:text-sm font-bold mt-1 text-emerald-400"></p>
          </div>
-         <div class="bg-white rounded-xl p-3.5 soft-card shadow-sm">
-          <p class="text-xs font-semibold text-slate-500">Hasil Akhir</p>
-          <p id="dep-final" class="stat-number text-sm sm:text-base font-bold mt-1.5 text-emerald-600"></p>
+         <div class="bg-emerald-950/90 border border-emerald-800/80 rounded-xl p-3 sm:p-3.5 shadow-sm">
+          <p class="text-[10px] sm:text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Hasil Akhir</p>
+          <p id="dep-final" class="stat-number text-xs sm:text-sm font-bold mt-1 text-emerald-400"></p>
          </div>
         </div>
 
@@ -343,36 +324,17 @@
          <p id="projection-value" class="mt-2.5 text-xs text-slate-500 font-medium"></p>
         </div>
 
-        <!-- SVG Chart Container Deposito -->
-        <div class="mt-6 bg-slate-950 rounded-2xl p-4 border border-slate-800 shadow-inner">
-         <div class="flex justify-between items-center mb-2 px-1">
+        <!-- Chart.js Container Deposito -->
+        <div class="mt-6 bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-2xl relative">
+         <div class="flex justify-between items-center mb-3 px-1">
           <div class="flex items-center gap-2">
-           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Grafik Pertumbuhan Deposito</h4>
           </div>
-          <span class="text-[11px] font-semibold text-emerald-400">Tren Bunga Berbunga</span>
+          <span class="text-[11px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">Bunga Berbunga</span>
          </div>
-         <div class="relative w-full h-40">
-          <svg viewbox="0 0 440 150" class="w-full h-full" role="img" aria-label="Grafik pertumbuhan deposito">
-           <defs>
-            <linearGradient id="depArea" x1="0" y1="0" x2="0" y2="1">
-             <stop offset="0%" stop-color="#10b981" stop-opacity="0.4" />
-             <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
-            </linearGradient>
-            <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
-             <feGaussianBlur stdDeviation="3" result="blur" />
-             <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-           </defs>
-           <line x1="10" y1="31" x2="430" y2="31" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-           <line x1="10" y1="78" x2="430" y2="78" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-           <line x1="10" y1="125" x2="430" y2="125" stroke="#334155" stroke-width="1" stroke-dasharray="4 4" />
-
-           <path id="dep-area" class="chart-area" d="M 10 118 L 430 38 L 430 140 L 10 140 Z" fill="url(#depArea)" />
-           <path id="dep-line" class="chart-line" d="M 10 118 L 430 38" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowGreen)" />
-           
-           <circle id="dep-point-end" cx="430" cy="38" r="6" fill="#10b981" stroke="#ffffff" stroke-width="2" filter="url(#glowGreen)" />
-          </svg>
+         <div class="relative w-full h-52 sm:h-60">
+          <canvas id="depositoChart"></canvas>
          </div>
         </div>
 

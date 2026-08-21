@@ -20,7 +20,6 @@ function animateValue(element, start, end, duration = 650, prefix = '', isCurren
   function update(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    // Ease out cubic
     const easeProgress = 1 - Math.pow(1 - progress, 3);
     const current = Math.round(start + diff * easeProgress);
 
@@ -39,73 +38,162 @@ function animateValue(element, start, end, duration = 650, prefix = '', isCurren
   requestAnimationFrame(update);
 }
 
-function makeSmoothBezierPath(values) {
-  const width = 420, left = 10, baseY = 120, topY = 28;
-  const min = Math.min(...values), max = Math.max(...values);
-  const points = values.map((value, index) => {
-    const x = left + (width / (values.length - 1)) * index;
-    const normal = max === min ? 0.5 : (value - min) / (max - min);
-    const y = baseY - normal * (baseY - topY);
-    return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)) };
+let slotChartInstance = null;
+let depositoChartInstance = null;
+
+function renderChartJS(amount, months, monthlyRate, slotBalance) {
+  if (typeof Chart === 'undefined') return;
+
+  const labels = Array.from({length: 6}, (_, i) => {
+    const m = Math.round((months / 5) * i);
+    return m === 0 ? 'Awal' : `Bln ${m}`;
   });
 
-  if (points.length === 0) return { path: '', points: [] };
-  let path = `M ${points[0].x} ${points[0].y}`;
+  const depositValues = Array.from({length: 6}, (_, i) => 
+    Math.round(amount * Math.pow(1 + monthlyRate, (months / 5) * i))
+  );
 
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i];
-    const p1 = points[i + 1];
-    const dx = p1.x - p0.x;
-    const cp1x = (p0.x + dx * 0.42).toFixed(1);
-    const cp1y = p0.y.toFixed(1);
-    const cp2x = (p1.x - dx * 0.42).toFixed(1);
-    const cp2y = p1.y.toFixed(1);
-    path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
-  }
-
-  return { path, points };
-}
-
-function updateCharts(amount, months, monthlyRate, slotBalance) {
-  const depositValues = Array.from({length: 6}, (_, i) => amount * Math.pow(1 + monthlyRate, (months / 5) * i));
-  
   const slotValues = Array.from({length: 6}, (_, i) => {
-    const target = slotBalance;
-    const wobble = i === 0 || i === 5 ? 0 : (Math.random() - 0.45) * amount * 0.08;
-    return Math.max(0, amount + (target - amount) * (i / 5) + wobble);
+    if (i === 0) return amount;
+    if (i === 5) return slotBalance;
+    const drop = amount - (amount - slotBalance) * (i / 5);
+    const fluctuation = (Math.random() - 0.5) * amount * 0.08;
+    return Math.max(0, Math.round(drop + fluctuation));
   });
-  slotValues[0] = amount;
-  slotValues[5] = slotBalance;
 
-  const depResult = makeSmoothBezierPath(depositValues);
-  const slotResult = makeSmoothBezierPath(slotValues);
+  // Slot Chart.js Canvas
+  const ctxSlot = document.getElementById('slotChart')?.getContext('2d');
+  if (ctxSlot) {
+    const gradientSlot = ctxSlot.createLinearGradient(0, 0, 0, 220);
+    gradientSlot.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
+    gradientSlot.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
 
-  const depLine = document.getElementById('dep-line');
-  const depArea = document.getElementById('dep-area');
-  const slotLine = document.getElementById('slot-line');
-  const slotArea = document.getElementById('slot-area');
-
-  if (depLine) depLine.setAttribute('d', depResult.path);
-  if (depArea) depArea.setAttribute('d', `${depResult.path} L 430 140 L 10 140 Z`);
-  if (slotLine) slotLine.setAttribute('d', slotResult.path);
-  if (slotArea) slotArea.setAttribute('d', `${slotResult.path} L 430 140 L 10 140 Z`);
-
-  // Update glowing data point dots
-  if (depResult.points.length > 0) {
-    const lastDep = depResult.points[depResult.points.length - 1];
-    const depPoint = document.getElementById('dep-point-end');
-    if (depPoint) {
-      depPoint.setAttribute('cx', lastDep.x);
-      depPoint.setAttribute('cy', lastDep.y);
+    if (slotChartInstance) {
+      slotChartInstance.data.labels = labels;
+      slotChartInstance.data.datasets[0].data = slotValues;
+      slotChartInstance.update();
+    } else {
+      slotChartInstance = new Chart(ctxSlot, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Saldo Slot (Rp)',
+            data: slotValues,
+            borderColor: '#ef4444',
+            borderWidth: 3,
+            backgroundColor: gradientSlot,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#ef4444',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#94a3b8',
+              bodyColor: '#f8fafc',
+              borderColor: '#334155',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: (ctx) => `Saldo Slot: ${rupiah.format(ctx.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { 
+                color: '#94a3b8', 
+                font: { size: 10 },
+                callback: (v) => 'Rp' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')
+              }
+            }
+          }
+        }
+      });
     }
   }
 
-  if (slotResult.points.length > 0) {
-    const lastSlot = slotResult.points[slotResult.points.length - 1];
-    const slotPoint = document.getElementById('slot-point-end');
-    if (slotPoint) {
-      slotPoint.setAttribute('cx', lastSlot.x);
-      slotPoint.setAttribute('cy', lastSlot.y);
+  // Deposito Chart.js Canvas
+  const ctxDep = document.getElementById('depositoChart')?.getContext('2d');
+  if (ctxDep) {
+    const gradientDep = ctxDep.createLinearGradient(0, 0, 0, 220);
+    gradientDep.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+    gradientDep.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+    if (depositoChartInstance) {
+      depositoChartInstance.data.labels = labels;
+      depositoChartInstance.data.datasets[0].data = depositValues;
+      depositoChartInstance.update();
+    } else {
+      depositoChartInstance = new Chart(ctxDep, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Saldo Deposito (Rp)',
+            data: depositValues,
+            borderColor: '#10b981',
+            borderWidth: 3,
+            backgroundColor: gradientDep,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#94a3b8',
+              bodyColor: '#f8fafc',
+              borderColor: '#334155',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: (ctx) => `Saldo Deposito: ${rupiah.format(ctx.parsed.y)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { 
+                color: '#94a3b8', 
+                font: { size: 10 },
+                callback: (v) => 'Rp' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')
+              }
+            }
+          }
+        }
+      });
     }
   }
 }
@@ -144,7 +232,7 @@ function renderSlotPattern(amount, finalBalance, rounds) {
   }
 }
 
-// Render 6-Month Compounding Breakdown Cards for Deposito to Balance Right Panel Height
+// Render 6-Month Compounding Breakdown Cards for Deposito
 function renderDepositBreakdown(amount, months, monthlyRate, rounds = 6) {
   const breakdown = document.getElementById('deposit-breakdown');
   if (!breakdown) return;
@@ -232,7 +320,7 @@ function simulate() {
   if (monthlyValue) monthlyValue.textContent = `+${rupiah.format(interest / months)} / bulan*`;
   if (projectionValue) projectionValue.textContent = `Proyeksi ${months} bulan: ${rupiah.format(finalDeposit)} pada bunga ${annualRate.toFixed(1).replace('.', ',')}% per tahun.`;
 
-  updateCharts(amount, months, monthlyRate, slotBalance);
+  renderChartJS(amount, months, monthlyRate, slotBalance);
   renderSlotPattern(amount, slotBalance, 6);
   renderDepositBreakdown(amount, months, monthlyRate, 6);
 
