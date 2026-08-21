@@ -38,168 +38,132 @@ function animateValue(element, start, end, duration = 650, prefix = '', isCurren
   requestAnimationFrame(update);
 }
 
-let slotChartInstance = null;
-let depositoChartInstance = null;
+// Standalone Native HTML5 Canvas Engine (Zero External Library Dependencies)
+function drawNativeCanvasChart(canvasId, labels, dataValues, primaryColor, areaGradientColor) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-function renderChartJS(amount, months, monthlyRate, slotBalance) {
-  if (typeof Chart === 'undefined') return;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
 
-  const labels = Array.from({length: 6}, (_, i) => {
-    const m = Math.round((months / 5) * i);
-    return m === 0 ? 'Awal' : `Bln ${m}`;
+  const w = rect.width;
+  const h = rect.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  const padLeft = 55;
+  const padRight = 20;
+  const padTop = 25;
+  const padBottom = 30;
+
+  const graphW = w - padLeft - padRight;
+  const graphH = h - padTop - padBottom;
+
+  const maxVal = Math.max(...dataValues, 1000);
+  const minVal = 0;
+
+  // Gridlines & Y-Axis Labels
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '600 10px "DM Sans", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const yVal = maxVal - (maxVal / steps) * i;
+    const yPos = padTop + (graphH / steps) * i;
+
+    ctx.beginPath();
+    ctx.moveTo(padLeft, yPos);
+    ctx.lineTo(w - padRight, yPos);
+    ctx.stroke();
+
+    const formattedLabel = 'Rp' + (yVal >= 1000000 ? (yVal / 1000000).toFixed(1) + 'M' : (yVal / 1000).toFixed(0) + 'k');
+    ctx.fillText(formattedLabel, padLeft - 8, yPos);
+  }
+  ctx.setLineDash([]);
+
+  // Calculate Point Positions
+  const points = dataValues.map((val, idx) => {
+    const x = padLeft + (graphW / (dataValues.length - 1)) * idx;
+    const norm = (val - minVal) / (maxVal - minVal);
+    const y = padTop + graphH * (1 - norm);
+    return { x, y, val, label: labels[idx] };
   });
 
-  const depositValues = Array.from({length: 6}, (_, i) => 
-    Math.round(amount * Math.pow(1 + monthlyRate, (months / 5) * i))
-  );
-
-  const slotValues = Array.from({length: 6}, (_, i) => {
-    if (i === 0) return amount;
-    if (i === 5) return slotBalance;
-    const drop = amount - (amount - slotBalance) * (i / 5);
-    const fluctuation = (Math.random() - 0.5) * amount * 0.08;
-    return Math.max(0, Math.round(drop + fluctuation));
+  // X-Axis Labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  points.forEach(pt => {
+    ctx.fillText(pt.label, pt.x, h - padBottom + 8);
   });
 
-  // Slot Chart.js Canvas
-  const ctxSlot = document.getElementById('slotChart')?.getContext('2d');
-  if (ctxSlot) {
-    const gradientSlot = ctxSlot.createLinearGradient(0, 0, 0, 220);
-    gradientSlot.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
-    gradientSlot.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+  // Draw Smooth Gradient Area Under Curve
+  if (points.length > 0) {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
 
-    if (slotChartInstance) {
-      slotChartInstance.data.labels = labels;
-      slotChartInstance.data.datasets[0].data = slotValues;
-      slotChartInstance.update();
-    } else {
-      slotChartInstance = new Chart(ctxSlot, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Saldo Slot (Rp)',
-            data: slotValues,
-            borderColor: '#ef4444',
-            borderWidth: 3,
-            backgroundColor: gradientSlot,
-            fill: true,
-            tension: 0.35,
-            pointBackgroundColor: '#ef4444',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              titleColor: '#94a3b8',
-              bodyColor: '#f8fafc',
-              borderColor: '#334155',
-              borderWidth: 1,
-              padding: 10,
-              displayColors: false,
-              callbacks: {
-                label: (ctx) => `Saldo Slot: ${rupiah.format(ctx.parsed.y)}`
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255,255,255,0.06)' },
-              ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } }
-            },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.06)' },
-              ticks: { 
-                color: '#94a3b8', 
-                font: { size: 10 },
-                callback: (v) => 'Rp' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')
-              }
-            }
-          }
-        }
-      });
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cx = (p0.x + p1.x) / 2;
+      ctx.bezierCurveTo(cx, p0.y, cx, p1.y, p1.x, p1.y);
     }
+
+    ctx.lineTo(points[points.length - 1].x, h - padBottom);
+    ctx.lineTo(points[0].x, h - padBottom);
+    ctx.closePath();
+
+    const areaGradient = ctx.createLinearGradient(0, padTop, 0, h - padBottom);
+    areaGradient.addColorStop(0, areaGradientColor);
+    areaGradient.addColorStop(1, 'rgba(15, 23, 42, 0)');
+    ctx.fillStyle = areaGradient;
+    ctx.fill();
   }
 
-  // Deposito Chart.js Canvas
-  const ctxDep = document.getElementById('depositoChart')?.getContext('2d');
-  if (ctxDep) {
-    const gradientDep = ctxDep.createLinearGradient(0, 0, 0, 220);
-    gradientDep.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
-    gradientDep.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+  // Draw Smooth Primary Line
+  if (points.length > 0) {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
 
-    if (depositoChartInstance) {
-      depositoChartInstance.data.labels = labels;
-      depositoChartInstance.data.datasets[0].data = depositValues;
-      depositoChartInstance.update();
-    } else {
-      depositoChartInstance = new Chart(ctxDep, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Saldo Deposito (Rp)',
-            data: depositValues,
-            borderColor: '#10b981',
-            borderWidth: 3,
-            backgroundColor: gradientDep,
-            fill: true,
-            tension: 0.35,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              titleColor: '#94a3b8',
-              bodyColor: '#f8fafc',
-              borderColor: '#334155',
-              borderWidth: 1,
-              padding: 10,
-              displayColors: false,
-              callbacks: {
-                label: (ctx) => `Saldo Deposito: ${rupiah.format(ctx.parsed.y)}`
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255,255,255,0.06)' },
-              ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } }
-            },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.06)' },
-              ticks: { 
-                color: '#94a3b8', 
-                font: { size: 10 },
-                callback: (v) => 'Rp' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')
-              }
-            }
-          }
-        }
-      });
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cx = (p0.x + p1.x) / 2;
+      ctx.bezierCurveTo(cx, p0.y, cx, p1.y, p1.x, p1.y);
     }
+
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = primaryColor;
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
   }
+
+  // Draw Glowing Data Dots
+  points.forEach((pt, i) => {
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, i === points.length - 1 ? 6 : 4, 0, Math.PI * 2);
+    ctx.fillStyle = primaryColor;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+  });
 }
 
-// Render 6 Spin Cards for Slot with Staggered JS Reveal Animation
-function renderSlotPattern(amount, finalBalance, rounds) {
+// Render 6 Spin Cards for Slot
+function renderSlotPattern(amount, finalBalance, rounds = 6) {
   const pattern = document.getElementById('slot-pattern');
   if (!pattern) return;
   pattern.innerHTML = '';
@@ -216,16 +180,16 @@ function renderSlotPattern(amount, finalBalance, rounds) {
     const delta = nextBalance - balance;
     
     const card = document.createElement('div');
-    card.className = `spin-card-anim rounded-xl border p-2 transition-all duration-300 hover:scale-105 overflow-hidden ${delta >= 0 ? 'border-emerald-500/40 bg-emerald-950/60 shadow-lg shadow-emerald-950/50' : 'border-rose-500/40 bg-rose-950/60 shadow-lg shadow-rose-950/50'}`;
+    card.className = `spin-card-anim rounded-xl border p-2.5 transition-all duration-300 hover:scale-105 overflow-hidden ${delta >= 0 ? 'border-emerald-500/40 bg-emerald-950/80 shadow-lg shadow-emerald-950/50' : 'border-rose-500/40 bg-rose-950/80 shadow-lg shadow-rose-950/50'}`;
     card.style.animationDelay = `${i * 0.07}s`;
 
     card.innerHTML = `
-      <div class="flex items-center justify-between gap-1 text-[9px] font-bold text-slate-300 mb-1 min-w-0">
+      <div class="flex items-center justify-between gap-1 text-[10px] font-bold text-slate-300 mb-1 min-w-0">
         <span class="shrink-0">Spin ${i}</span>
-        <span class="px-1 py-0.5 rounded text-[8px] font-extrabold shrink-0 ${delta >= 0 ? 'bg-emerald-500/25 text-emerald-300' : 'bg-rose-500/25 text-rose-300'}">${delta >= 0 ? '✓' : '✗'}</span>
+        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold shrink-0 ${delta >= 0 ? 'bg-emerald-500/30 text-emerald-300' : 'bg-rose-500/30 text-rose-300'}">${delta >= 0 ? 'MENANG' : 'KALAH'}</span>
       </div>
-      <p class="text-[10px] font-bold leading-tight truncate ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${delta >= 0 ? '+' : '−'}${rupiah.format(Math.abs(delta))}</p>
-      <p class="mt-0.5 text-[9px] text-slate-400 font-medium truncate">Saldo: ${rupiah.format(nextBalance)}</p>
+      <p class="text-xs font-bold leading-tight truncate ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${delta >= 0 ? '+' : '−'}${rupiah.format(Math.abs(delta))}</p>
+      <p class="mt-1 text-[10px] text-slate-400 font-medium truncate">Saldo: ${rupiah.format(nextBalance)}</p>
     `;
     pattern.appendChild(card);
     balance = nextBalance;
@@ -244,16 +208,16 @@ function renderDepositBreakdown(amount, months, monthlyRate, rounds = 6) {
     const accumulatedInterest = currentBalance - amount;
 
     const card = document.createElement('div');
-    card.className = `spin-card-anim rounded-xl border border-emerald-500/30 bg-emerald-950/60 p-2 transition-all duration-300 hover:scale-105 shadow-lg shadow-emerald-950/40 overflow-hidden`;
+    card.className = `spin-card-anim rounded-xl border border-emerald-500/40 bg-emerald-950/80 p-2.5 transition-all duration-300 hover:scale-105 shadow-lg shadow-emerald-950/50 overflow-hidden`;
     card.style.animationDelay = `${i * 0.07}s`;
 
     card.innerHTML = `
-      <div class="flex items-center justify-between gap-1 text-[9px] font-bold text-slate-300 mb-1 min-w-0">
-        <span class="shrink-0">P${i}</span>
-        <span class="px-1 py-0.5 rounded text-[8px] font-extrabold bg-emerald-500/25 text-emerald-300 shrink-0">✓</span>
+      <div class="flex items-center justify-between gap-1 text-[10px] font-bold text-slate-300 mb-1 min-w-0">
+        <span class="shrink-0">Periode ${i}</span>
+        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/30 text-emerald-300 shrink-0">STABIL</span>
       </div>
-      <p class="text-[10px] font-bold leading-tight text-emerald-400 truncate">+${rupiah.format(accumulatedInterest)}</p>
-      <p class="mt-0.5 text-[9px] text-slate-400 font-medium truncate">Saldo: ${rupiah.format(currentBalance)}</p>
+      <p class="text-xs font-bold leading-tight text-emerald-400 truncate">+${rupiah.format(accumulatedInterest)}</p>
+      <p class="mt-1 text-[10px] text-slate-400 font-medium truncate">Saldo: ${rupiah.format(currentBalance)}</p>
     `;
     breakdown.appendChild(card);
   }
@@ -320,9 +284,31 @@ function simulate() {
   if (monthlyValue) monthlyValue.textContent = `+${rupiah.format(interest / months)} / bulan*`;
   if (projectionValue) projectionValue.textContent = `Proyeksi ${months} bulan: ${rupiah.format(finalDeposit)} pada bunga ${annualRate.toFixed(1).replace('.', ',')}% per tahun.`;
 
-  renderChartJS(amount, months, monthlyRate, slotBalance);
+  // Always Render Spin & Breakdown Cards
   renderSlotPattern(amount, slotBalance, 6);
   renderDepositBreakdown(amount, months, monthlyRate, 6);
+
+  // Generate Data for Canvas Graphs
+  const labels = Array.from({length: 6}, (_, i) => {
+    const m = Math.round((months / 5) * i);
+    return m === 0 ? 'Awal' : `Bln ${m}`;
+  });
+
+  const depositValues = Array.from({length: 6}, (_, i) => 
+    Math.round(amount * Math.pow(1 + monthlyRate, (months / 5) * i))
+  );
+
+  const slotValues = Array.from({length: 6}, (_, i) => {
+    if (i === 0) return amount;
+    if (i === 5) return slotBalance;
+    const drop = amount - (amount - slotBalance) * (i / 5);
+    const fluctuation = (Math.random() - 0.5) * amount * 0.08;
+    return Math.max(0, Math.round(drop + fluctuation));
+  });
+
+  // Render High-DPI Native Canvas Charts
+  drawNativeCanvasChart('slotChart', labels, slotValues, '#ef4444', 'rgba(239, 68, 68, 0.4)');
+  drawNativeCanvasChart('depositoChart', labels, depositValues, '#10b981', 'rgba(16, 185, 129, 0.4)');
 
   const slotPanel = document.getElementById('slot-panel');
   const depositPanel = document.getElementById('deposit-panel');
@@ -373,6 +359,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     updateSliderTrack();
   }
+
+  window.addEventListener('resize', () => {
+    simulate();
+  });
 
   document.querySelectorAll('a[href="#simulator"]').forEach(link => {
     link.addEventListener('click', () => {
