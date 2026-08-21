@@ -11,8 +11,8 @@ $_ENV['APP_DEBUG'] = 'true';
 putenv('APP_STORAGE=/tmp');
 $_ENV['APP_STORAGE'] = '/tmp';
 
-putenv('VIEW_COMPILED_PATH=/tmp/views');
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
+putenv('VIEW_COMPILED_PATH=/tmp/framework/views');
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/framework/views';
 
 putenv('APP_SERVICES_CACHE=/tmp/services.php');
 $_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
@@ -51,10 +51,11 @@ if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
     $_ENV['APP_KEY'] = $key;
 }
 
-// Create required writable directories in /tmp
-@mkdir('/tmp/views', 0755, true);
-@mkdir('/tmp/sessions', 0755, true);
-@mkdir('/tmp/cache', 0755, true);
+// Create all required writable storage subdirectories in /tmp
+@mkdir('/tmp/framework/views', 0755, true);
+@mkdir('/tmp/framework/sessions', 0755, true);
+@mkdir('/tmp/framework/cache/data', 0755, true);
+@mkdir('/tmp/logs', 0755, true);
 
 // Fast PDO SQLite Auto-Initializer for Serverless Cold Start
 try {
