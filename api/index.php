@@ -1,6 +1,6 @@
 <?php
 
-// Forward Vercel requests to Laravel public/index.php
+// Forward Vercel requests to Laravel application
 // Set critical environment variables for Vercel Serverless environment
 putenv('APP_ENV=production');
 $_ENV['APP_ENV'] = 'production';
@@ -32,17 +32,18 @@ $_ENV['APP_EVENTS_CACHE'] = '/tmp/events.php';
 putenv('LOG_CHANNEL=stderr');
 $_ENV['LOG_CHANNEL'] = 'stderr';
 
-putenv('SESSION_DRIVER=array');
-$_ENV['SESSION_DRIVER'] = 'array';
+putenv('SESSION_DRIVER=file');
+$_ENV['SESSION_DRIVER'] = 'file';
 
-putenv('CACHE_STORE=array');
-$_ENV['CACHE_STORE'] = 'array';
+putenv('CACHE_STORE=file');
+$_ENV['CACHE_STORE'] = 'file';
 
+$dbPath = '/tmp/database.sqlite';
 putenv('DB_CONNECTION=sqlite');
 $_ENV['DB_CONNECTION'] = 'sqlite';
 
-putenv('DB_DATABASE=:memory:');
-$_ENV['DB_DATABASE'] = ':memory:';
+putenv("DB_DATABASE={$dbPath}");
+$_ENV['DB_DATABASE'] = $dbPath;
 
 if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
     $key = 'base64:3QuUpemEvS5zLdoPeKw/VXSqoNK/aZakhN0XKaTQcwo=';
@@ -55,5 +56,23 @@ if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
 @mkdir('/tmp/sessions', 0755, true);
 @mkdir('/tmp/cache', 0755, true);
 
-// Execute Laravel entry point
-require __DIR__ . '/../public/index.php';
+$needSeed = !file_exists($dbPath) || @filesize($dbPath) < 100;
+if (!file_exists($dbPath)) {
+    @touch($dbPath);
+}
+
+require __DIR__ . '/../vendor/autoload.php';
+$app = require __DIR__ . '/../bootstrap/app.php';
+
+if ($needSeed) {
+    try {
+        $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+        $kernel->call('migrate:fresh', ['--force' => true, '--seed' => true]);
+    } catch (\Throwable $e) {
+        // Fallback silently if artisan kernel fails on cold start
+    }
+}
+
+$request = \Illuminate\Http\Request::capture();
+$response = $app->handleRequest($request);
+$response->send();
