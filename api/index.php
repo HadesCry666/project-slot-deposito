@@ -1,53 +1,59 @@
 <?php
 
-try {
-    // 1. Set environment variables for Vercel Serverless environment
-    putenv('APP_ENV=production');
-    $_ENV['APP_ENV'] = 'production';
+// Forward Vercel requests to Laravel public/index.php
+// Set critical environment variables for Vercel Serverless environment
+putenv('APP_ENV=production');
+$_ENV['APP_ENV'] = 'production';
 
-    putenv('APP_DEBUG=true');
-    $_ENV['APP_DEBUG'] = 'true';
+putenv('APP_DEBUG=false');
+$_ENV['APP_DEBUG'] = 'false';
 
-    putenv('APP_STORAGE=/tmp');
-    $_ENV['APP_STORAGE'] = '/tmp';
+putenv('APP_STORAGE=/tmp');
+$_ENV['APP_STORAGE'] = '/tmp';
 
-    putenv('VIEW_COMPILED_PATH=/tmp/views');
-    $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
+putenv('VIEW_COMPILED_PATH=/tmp/views');
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 
-    putenv('LOG_CHANNEL=stderr');
-    $_ENV['LOG_CHANNEL'] = 'stderr';
+putenv('APP_SERVICES_CACHE=/tmp/services.php');
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
 
-    putenv('SESSION_DRIVER=array');
-    $_ENV['SESSION_DRIVER'] = 'array';
+putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
 
-    putenv('CACHE_STORE=array');
-    $_ENV['CACHE_STORE'] = 'array';
+putenv('APP_ROUTES_CACHE=/tmp/routes.php');
+$_ENV['APP_ROUTES_CACHE'] = '/tmp/routes.php';
 
-    putenv('DB_CONNECTION=sqlite');
-    $_ENV['DB_CONNECTION'] = 'sqlite';
+putenv('APP_CONFIG_CACHE=/tmp/config.php');
+$_ENV['APP_CONFIG_CACHE'] = '/tmp/config.php';
 
-    putenv('DB_DATABASE=:memory:');
-    $_ENV['DB_DATABASE'] = ':memory:';
+putenv('APP_EVENTS_CACHE=/tmp/events.php');
+$_ENV['APP_EVENTS_CACHE'] = '/tmp/events.php';
 
-    if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
-        $key = 'base64:3QuUpemEvS5zLdoPeKw/VXSqoNK/aZakhN0XKaTQcwo=';
-        putenv("APP_KEY={$key}");
-        $_ENV['APP_KEY'] = $key;
-    }
+putenv('LOG_CHANNEL=stderr');
+$_ENV['LOG_CHANNEL'] = 'stderr';
 
-    // 2. Create required directories in /tmp
-    @mkdir('/tmp/views', 0755, true);
-    @mkdir('/tmp/sessions', 0755, true);
-    @mkdir('/tmp/cache', 0755, true);
+putenv('SESSION_DRIVER=array');
+$_ENV['SESSION_DRIVER'] = 'array';
 
-    // 3. Execute Laravel entry point
-    require __DIR__ . '/../public/index.php';
+putenv('CACHE_STORE=array');
+$_ENV['CACHE_STORE'] = 'array';
 
-} catch (\Throwable $e) {
-    http_response_code(200);
-    header('Content-Type: text/html; charset=utf-8');
-    echo '<h1>Laravel Deployment Diagnostic</h1>';
-    echo '<p><b>Error:</b> ' . htmlspecialchars($e->getMessage()) . '</p>';
-    echo '<p><b>File:</b> ' . htmlspecialchars($e->getFile()) . ' on line ' . $e->getLine() . '</p>';
-    echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+putenv('DB_CONNECTION=sqlite');
+$_ENV['DB_CONNECTION'] = 'sqlite';
+
+putenv('DB_DATABASE=:memory:');
+$_ENV['DB_DATABASE'] = ':memory:';
+
+if (empty($_ENV['APP_KEY']) && empty(getenv('APP_KEY'))) {
+    $key = 'base64:3QuUpemEvS5zLdoPeKw/VXSqoNK/aZakhN0XKaTQcwo=';
+    putenv("APP_KEY={$key}");
+    $_ENV['APP_KEY'] = $key;
 }
+
+// Create required writable directories in /tmp
+@mkdir('/tmp/views', 0755, true);
+@mkdir('/tmp/sessions', 0755, true);
+@mkdir('/tmp/cache', 0755, true);
+
+// Execute Laravel entry point
+require __DIR__ . '/../public/index.php';
